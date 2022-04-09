@@ -1,0 +1,162 @@
+###################Start Generic Tools Install######################
+
+yum install -y \
+epel-release \
+net-tools \
+bind-utils \
+open-vm-tools \
+telnet \
+dstat \
+net-snmp \
+net-snmp-utils \
+wget \
+vim \
+haveged \
+zlib-devel \
+curl-devel \
+openssl-devel \
+httpd-devel \
+apr-devel \
+apr-util-devel \
+mariadb-devel \
+ftp \
+gcc-c++ \
+git-core \
+zlib \
+patch \
+readline \
+readline-devel \
+libyaml-devel \
+libffi-devel \
+make \
+bzip2 \
+autoconf \
+automake \
+libtool \
+bison \
+svn
+
+systemctl start httpd
+systemctl enable httpd
+
+systemctl enable vmtoolsd
+systemctl start vmtoolsd
+
+vim /etc/selinux/config
+
+yum upgrade
+
+shutdown -r now
+
+###################Start Redmine Specific Install######################
+
+####Ruby
+
+cd /opt
+git clone git://github.com/sstephenson/rbenv.git
+echo 'export PATH="/opt/rbenv/bin:$PATH"' >> ~/.bash_profile
+echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
+exec $SHELL
+
+git clone git://github.com/sstephenson/ruby-build.git /opt/rbenv/plugins/ruby-build
+echo 'export PATH="/opt/rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bash_profile
+exec $SHELL
+
+#logout & log back in to take in bash profile changes
+
+rbenv install -v 2.3.3
+rbenv global 2.3.3
+ruby -v
+
+gem install bundler
+
+###Rails
+
+gem install rails -v 4.2.8
+rbenv rehash
+
+rails -v
+yum install nodejs
+
+### postgresql
+yum install \
+postgresql \
+postgresql-server \
+postgresql-libs \
+postgresql-contrib \
+postgresql-devel
+
+postgresql-setup initdb
+
+#secure/open db - 
+vim /var/lib/pgsql/data/pg_hba.conf
+host    all             all             127.0.0.1/32            md5
+host    all             all             ::1/128                 md5
+
+systemctl start postgresql
+systemctl enable postgresql
+
+su postgres
+psql
+CREATE ROLE redmine LOGIN ENCRYPTED PASSWORD 'password' NOINHERIT VALID UNTIL 'infinity';
+CREATE DATABASE redmine WITH ENCODING='UTF8' OWNER=redmine TEMPLATE template0;
+\q
+exit
+
+yum install ImageMagick ImageMagick-devel
+
+###Redmine Install
+
+cd /var/www
+svn co https://svn.redmine.org/redmine/branches/3.3-stable redmine-3.3
+
+mv redmine-3.3 redmine
+cd redmine/
+cd config
+cp database.yml.example database.yml
+vim database.yml
+# PostgreSQL configuration example
+production:
+  adapter: postgresql
+  database: redmine
+  host: localhost
+  username: redmine
+  password: "password"
+  encoding: utf8
+  schema_search_path: public
+
+
+###Configure httpd/passenger
+
+cd /var/www/redmine
+bundle install --without development test rmagick
+bundle exec rake generate_secret_token
+rbenv rehash
+RAILS_ENV=production bundle exec rake db:migrate
+
+mkdir -p tmp tmp/pdf public/plugin_assets
+sudo chown -R apache:apache files log tmp public/plugin_assets
+sudo chmod -R 755 files log tmp public/plugin_assets
+
+sudo chown -R apache:apache /var/www/redmine
+
+chmod o+x "/root"
+vim /etc/httpd/conf.d/redmine.conf
+<VirtualHost *:80>
+   ServerName dev.corp.pvt
+   DocumentRoot /var/www/redmine/public
+   <Directory /var/www/redmine/public>
+      AllowOverride all
+      Require all granted
+      Options -MultiViews
+   </Directory>
+</VirtualHost>
+
+
+gem install passenger
+passenger-install-apache2-module
+vim /etc/httpd/conf.d/pass.conf
+
+cd /var/www/redmine/public/
+mv dispatch.fcgi.example dispatch.fcgi
+

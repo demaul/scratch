@@ -1,0 +1,62 @@
+cmansetup
+
+yum install pacemaker cman pcs ccs resource-agents
+
+ccs -f /etc/cluster/cluster.conf --createcluster TestMail-BE
+ccs -f /etc/cluster/cluster.conf --addnode BE-mail1
+ccs -f /etc/cluster/cluster.conf --addnode BE-mail2
+ccs -f /etc/cluster/cluster.conf --addnode BE-mail3
+
+ccs -f /etc/cluster/cluster.conf --addfencedev pcmk agent=fence_pcmk
+
+ccs -f /etc/cluster/cluster.conf --addmethod pcmk-redirect BE-mail1
+ccs -f /etc/cluster/cluster.conf --addmethod pcmk-redirect BE-mail2
+ccs -f /etc/cluster/cluster.conf --addmethod pcmk-redirect BE-mail3
+
+ccs -f /etc/cluster/cluster.conf --addfenceinst pcmk BE-mail1 pcmk-redirect port=BE-mail1
+ccs -f /etc/cluster/cluster.conf --addfenceinst pcmk BE-mail2 pcmk-redirect port=BE-mail2
+ccs -f /etc/cluster/cluster.conf --addfenceinst pcmk BE-mail3 pcmk-redirect port=BE-mail3
+
+
+#Copy /etc/cluster/cluster.conf to all nodes
+[root@testmail01 ~]# cat /etc/cluster/cluster.conf
+<cluster config_version="11" name="TestMail-BE">
+  <fence_daemon/>
+  <clusternodes>
+    <clusternode name="BE-mail1" nodeid="1">
+      <fence>
+        <method name="pcmk-redirect">
+          <device name="pcmk" port="BE-mail1"/>
+        </method>
+      </fence>
+    </clusternode>
+    <clusternode name="BE-mail2" nodeid="2">
+      <fence>
+        <method name="pcmk-redirect">
+          <device name="pcmk" port="BE-mail2"/>
+        </method>
+      </fence>
+    </clusternode>
+    <clusternode name="BE-mail3" nodeid="3">
+      <fence>
+        <method name="pcmk-redirect">
+          <device name="pcmk" port="BE-mail3"/>
+        </method>
+      </fence>
+    </clusternode>
+  </clusternodes>
+  <cman/>
+  <fencedevices>
+    <fencedevice agent="fence_pcmk" name="pcmk"/>
+  </fencedevices>
+  <rm>
+    <failoverdomains/>
+    <resources/>
+  </rm>
+</cluster>
+[root@testmail01 ~]#
+
+
+[ALL] # service cman start 
+[ALL] # service pacemaker start
+

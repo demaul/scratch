@@ -1,0 +1,12 @@
+ethernet cfm ieee
+ethernet cfm global
+ethernet cfm domain SP-ISP level 5
+ service cpe666 vlan 666
+  continuity-check
+
+
+sw1 cpe port interface
+ethernet cfm mep domain SP-ISP mpid 666 service cpe666
+
+sw2 cpe port interface
+ethernet cfm mep domain SP-ISP mpid 4666 service cpe666

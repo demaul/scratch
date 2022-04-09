@@ -1,0 +1,40 @@
+
+yum install wget
+
+wget http://www.communigate.com/pub/CommuniGatePro/CGatePro-Linux.x86_64.rpm
+
+rpm -ivh CGatePro-Linux.x86_64.rpm
+
+chkconfig postfix off
+service postfix stop
+
+/etc/init.d/CommuniGate start
+
+mkdir /var/CommuniGate/SharedDomains
+
+#Go to ip.addr.ess:8010
+#
+
+
+
+
+http://www.communigate.com/communigatepro/ClusterDynamic.html
+To install a Dynamic Cluster, follow these steps:
+
+    Install and configure CommuniGate Pro Software on all Servers that will take part in a Dynamic Cluster.
+    Open the WebAdmin Settings->Access page and modify the PWD service settings. Each Cluster member (Backend and Frontend)
+	opens 2 PWD connections to the Cluster Controller, so the maximum number of channels should be increased at least by
+
+        2*(number of Backend servers + number of Frontend servers)
+
+    Since additional PWD connections can be opened by Frontend and Backend servers to serve administrator and user requests,
+	it is better to increase the number of channels by:
+
+        5*(number of Backend servers) + 3*(number of Frontend servers)
+
+    Open the WebAdmin Settings->General->Clusters page and enter the IP addresses of all backend and frontend Servers in the Cluster.
+    Stop all Servers.
+    Create a file directory that will contain Shared Domains. You should create that file directory on a storage unit that will be
+	available for all Cluster Backend Servers (on a file server, for example). Place a link to that directory into the CommuniGate Pro
+	base directory, and name that link SharedDomains. Make sure that all Backend Servers have all file access rights to create, remove,
+	read, and modify files and directories inside the SharedDomain directory. 

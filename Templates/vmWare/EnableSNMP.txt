@@ -1,0 +1,3 @@
+esxcli system snmp set --communities communityname
+esxcli system snmp set --port 161
+esxcli system snmp set --enable true

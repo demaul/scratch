@@ -1,0 +1,243 @@
+
+echo "10.69.1.86   BE-mail1" >> /etc/hosts
+echo "10.69.1.87   BE-mail2" >> /etc/hosts
+echo "10.69.1.88   BE-mail3" >> /etc/hosts
+echo "10.69.1.89   BE-mail4" >> /etc/hosts
+
+
+VM creation -
+	Network -	Public
+				SANLAN1
+				SANLAN2
+
+
+Install:
+reinitialize
+root/ididn'tdoit
+use entire disk
+
+vi /etc/sysconfig/network-scripts/ifcfg-eth0
+ONBOOT=yes
+IPADDR=10.69.1.88
+PREFIX=24
+GATEWAY=10.69.1.1
+DNS1=10.69.1.6
+DNS2=10.69.1.7
+DNS3=8.8.8.8
+
+echo "nameserver 10.24.113.29" >> /etc/resolv.conf
+echo "nameserver 10.24.113.30" >> /etc/resolv.conf
+
+vi /etc/sysconfig/network-scripts/ifcfg-eth1
+ONBOOT=yes
+BOOTPROTO=static
+BROADCAST=10.100.196.255
+IPADDR=10.100.196.117
+NETMASK=255.255.255.0
+NETWORK=10.100.196.0
+
+vi /etc/sysconfig/network-scripts/ifcfg-eth2
+ONBOOT=yes
+BOOTPROTO=static
+BROADCAST=10.100.197.255
+IPADDR=10.100.197.117
+NETMASK=255.255.255.0
+NETWORK=10.100.197.0
+
+ifup eth1 && ifup eth2
+
+vi /etc/hosts
+127.0.0.1   testmail03
+
+vi /etc/sysconfig/network
+HOSTNAME=testmail03.localdomain
+
+shutdown -r now
+
+
+SSH IN!
+
+
+yum install openssh-clients.x86_64 bind-utils.x86_64 man iscsi-initiator-utils.x86_64
+
+# man iscsiadm
+
+
+#Information Required for Nimbe:
+cat /etc/iscsi/initiatorname.iscsi
+
+iscsiadm --mode discoverydb --type sendtargets --portal 10.100.196.10 --discover
+
+[root@testmail01 ~]# iscsiadm --mode discoverydb --type sendtargets --portal 10.100.196.10 --discover
+Starting iscsid:                                           [  OK  ]
+10.100.196.10:3260,2460 iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068
+10.100.197.10:3260,2460 iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068
+[root@testmail01 ~]# iscsiadm --mode node --targetname iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068 --portal 10.100.196.10 --login
+Logging in to [iface: default, target: iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068, portal: 10.100.196.10,3260] (multiple)
+Login to [iface: default, target: iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068, portal: 10.100.196.10,3260] successful.
+[root@testmail01 ~]# iscsiadm --mode node
+10.100.197.10:3260,2460 iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068
+10.100.196.10:3260,2460 iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068
+[root@testmail01 ~]# iscsiadm --mode node --targetname iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068 --portal 10.100.196.10
+# BEGIN RECORD 6.2.0-873.13.el6
+node.name = iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068
+node.tpgt = 2460
+node.startup = automatic
+node.leading_login = No
+iface.hwaddress = <empty>
+iface.ipaddress = <empty>
+iface.iscsi_ifacename = default
+iface.net_ifacename = <empty>
+iface.transport_name = tcp
+iface.initiatorname = <empty>
+iface.state = <empty>
+iface.vlan_id = 0
+iface.vlan_priority = 0
+iface.vlan_state = <empty>
+iface.iface_num = 0
+iface.mtu = 0
+iface.port = 0
+iface.bootproto = <empty>
+iface.subnet_mask = <empty>
+iface.gateway = <empty>
+iface.dhcp_alt_client_id_state = <empty>
+iface.dhcp_alt_client_id = <empty>
+iface.dhcp_dns = <empty>
+iface.dhcp_learn_iqn = <empty>
+iface.dhcp_req_vendor_id_state = <empty>
+iface.dhcp_vendor_id_state = <empty>
+iface.dhcp_vendor_id = <empty>
+iface.dhcp_slp_da = <empty>
+iface.fragmentation = <empty>
+iface.gratuitous_arp = <empty>
+iface.incoming_forwarding = <empty>
+iface.tos_state = <empty>
+iface.tos = 0
+iface.ttl = 0
+iface.delayed_ack = <empty>
+iface.tcp_nagle = <empty>
+iface.tcp_wsf_state = <empty>
+iface.tcp_wsf = 0
+iface.tcp_timer_scale = 0
+iface.tcp_timestamp = <empty>
+iface.redirect = <empty>
+iface.def_task_mgmt_timeout = 0
+iface.header_digest = <empty>
+iface.data_digest = <empty>
+iface.immediate_data = <empty>
+iface.initial_r2t = <empty>
+iface.data_seq_inorder = <empty>
+iface.data_pdu_inorder = <empty>
+iface.erl = 0
+iface.max_receive_data_len = 0
+iface.first_burst_len = 0
+iface.max_outstanding_r2t = 0
+iface.max_burst_len = 0
+iface.chap_auth = <empty>
+iface.bidi_chap = <empty>
+iface.strict_login_compliance = <empty>
+iface.discovery_auth = <empty>
+iface.discovery_logout = <empty>
+node.discovery_address = 10.100.196.10
+node.discovery_port = 3260
+node.discovery_type = send_targets
+node.session.initial_cmdsn = 0
+node.session.initial_login_retry_max = 8
+node.session.xmit_thread_priority = -20
+node.session.cmds_max = 128
+node.session.queue_depth = 32
+node.session.nr_sessions = 1
+node.session.auth.authmethod = None
+node.session.auth.username = <empty>
+node.session.auth.password = <empty>
+node.session.auth.username_in = <empty>
+node.session.auth.password_in = <empty>
+node.session.timeo.replacement_timeout = 120
+node.session.err_timeo.abort_timeout = 15
+node.session.err_timeo.lu_reset_timeout = 30
+node.session.err_timeo.tgt_reset_timeout = 30
+node.session.err_timeo.host_reset_timeout = 60
+node.session.iscsi.FastAbort = Yes
+node.session.iscsi.InitialR2T = No
+node.session.iscsi.ImmediateData = Yes
+node.session.iscsi.FirstBurstLength = 262144
+node.session.iscsi.MaxBurstLength = 16776192
+node.session.iscsi.DefaultTime2Retain = 0
+node.session.iscsi.DefaultTime2Wait = 2
+node.session.iscsi.MaxConnections = 1
+node.session.iscsi.MaxOutstandingR2T = 1
+node.session.iscsi.ERL = 0
+node.conn[0].address = 10.100.196.10
+node.conn[0].port = 3260
+node.conn[0].startup = manual
+node.conn[0].tcp.window_size = 524288
+node.conn[0].tcp.type_of_service = 0
+node.conn[0].timeo.logout_timeout = 15
+node.conn[0].timeo.login_timeout = 15
+node.conn[0].timeo.auth_timeout = 45
+node.conn[0].timeo.noop_out_interval = 5
+node.conn[0].timeo.noop_out_timeout = 5
+node.conn[0].iscsi.MaxXmitDataSegmentLength = 0
+node.conn[0].iscsi.MaxRecvDataSegmentLength = 262144
+node.conn[0].iscsi.HeaderDigest = None
+node.conn[0].iscsi.IFMarker = No
+node.conn[0].iscsi.OFMarker = No
+# END RECORD
+[root@testmail01 ~]# fdisk -l /dev/sda
+
+Disk /dev/sda: 536.9 GB, 536870912000 bytes
+255 heads, 63 sectors/track, 65270 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x00000000
+
+[root@testmail01 ~]# iscsiadm --mode node --targetname iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068 --portal 10.100.196.10 --logout
+Logging out of session [sid: 1, target: iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068, portal: 10.100.196.10,3260]
+Logout of [sid: 1, target: iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068, portal: 10.100.196.10,3260] successful.
+
+
+yum install device-mapper-multipath device-mapper.x86_64
+
+
+chkconfig iscsi on
+chkconfig iscsid on
+service iscsi start
+service iscsid start
+
+iscsiadm -m node -L automatic
+
+[root@testmail01 ~]# iscsiadm -m session
+tcp: [2] 10.100.197.10:3260,2460 iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068 (non-flash)
+tcp: [3] 10.100.196.10:3260,2460 iqn.2007-11.com.nimblestorage:testmail-v72967d7e61727d16.00000010.13e40068 (non-flash)
+[root@testmail01 ~]#
+
+/etc/multipath.conf : Add/Change
+
+blacklist {
+devnode "^xvd[a-z]"
+}
+
+devices {
+        device {
+                vendor                  "Nimble"
+                product                 "Server"
+                path_grouping_policy    group_by_serial
+                path_checker            tur
+                rr_min_io               10
+                path_selector           "round-robin 0"
+                failback                manual
+                rr_weight               priorities
+                no_path_retry           20
+        }
+}
+
+
+modprobe dm-multipath
+service multipathd start
+chkconfig multipathd on
+
+multipath -ll
+
+https://www.centos.org/forums/viewtopic.php?f=14&t=50297
+

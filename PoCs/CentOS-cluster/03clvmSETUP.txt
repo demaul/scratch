@@ -1,0 +1,32 @@
+CLVM https://www.centos.org/docs/4/4.5/Oracle_GFS-en-US/Installing_and_Configuring_the_Clustered_Logical_Volume_Manager.html
+
+yum install lvm2-cluster.x86_64
+
+
+# Miscellaneous global LVM2 settings
+vi /etc/lvm/lvm.conf
+:555    locking_type = 3
+
+chkconfig clvmd on
+service clvmd start
+
+[root@testmail03 ~]# pvcreate /dev/mapper/20afe2da2a02013446c9ce9006800e413
+  Physical volume "/dev/mapper/20afe2da2a02013446c9ce9006800e413" successfully created
+[root@testmail03 ~]# vgs
+  VG       #PV #LV #SN Attr   VSize VFree
+  VolGroup   1   2   0 wz--n- 7.51g    0
+[root@testmail03 ~]# vgcreate VolMail /dev/mapper/20afe2da2a02013446c9ce9006800e413
+  Clustered volume group "VolMail" successfully created
+[root@testmail03 ~]# lvcreate -L 10000 -n LVmail VolMail
+  Logical volume "LVmail" created
+[root@testmail03 ~]# vgs
+  VG       #PV #LV #SN Attr   VSize   VFree
+  VolGroup   1   2   0 wz--n-   7.51g      0
+  VolMail    1   1   0 wz--nc 500.00g 490.23g
+
+  
+http://h10025.www1.hp.com/ewfrf/wc/document?cc=us&lc=en&dlc=en&docname=c02713398
+#clvmd -R
+Then scanned volumes using
+#vgscan:
+Now lvcreate worked fine.

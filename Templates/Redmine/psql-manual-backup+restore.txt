@@ -1,0 +1,24 @@
+#Backup DB
+# -o = preserve OIDs
+# -Fc = Fileformat Custom
+# -h = host
+# -U = username
+# redmine = db name
+# > Pipe to .sql file
+
+pg_dump -o -Fc -h localhost -U redmine redmine > dump1.sql
+
+
+#Restore DB
+# -h = host
+# -U = username
+# -c = "clean" (drop db before restore)
+# -d = Database
+pg_restore -h localhost -U redmine -c -d redmine dump1.sql
+
+
+#Copy Files Dir (diff by using rsync)
+# -a = Archive (preserve all the important info, recursive, handles directories)
+# -v = Verbose
+rsync -av /var/www/redmine/files root@dev.corp.pvt:/var/www/redmine/
+

@@ -1,0 +1,40 @@
+ASR901 CONFIG:
+
+class-map match-any 20Mbps
+ match vlan XXX
+!
+!
+policy-map 20Mbps
+ class class-default
+    police cir 22000000
+      conform-action transmit
+      exceed-action drop
+!
+!
+interface GigabitEthernet0/1
+!access port assumed
+ service-policy input 20Mbps
+
+
+CISCO ME3400
+
+class-map match-any class100meg
+  match vlan  3014
+!
+policy-map child100meg
+ class class-default
+    police cir 100m
+      conform-action transmit
+      exceed-action drop
+policy-map parent100meg
+ class class100meg
+   service-policy child100meg
+
+
+interface GigabitEthernet0/1
+ description CPE HANDOFF
+ switchport access vlan 821
+ service-policy input child20meg
+
+interface GigabitEthernet0/4
+ service-policy input parent20meg

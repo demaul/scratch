@@ -1,0 +1,20 @@
+http://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=2075048
+
+
+vi /etc/yum.repos.d/vmware-tools.repo
+
+[vmware-tools]
+name = VMware Tools
+baseurl = http://packages.vmware.com/packages/rhel7/x86_64/
+enabled = 1
+gpgcheck = 1
+
+
+
+wget http://packages.vmware.com/tools/keys/VMWARE-PACKAGING-GPG-DSA-KEY.pub
+wget http://packages.vmware.com/tools/keys/VMWARE-PACKAGING-GPG-RSA-KEY.pub
+
+rpm --import VMWARE-PACKAGING-GPG-DSA-KEY.pub
+rpm --import VMWARE-PACKAGING-GPG-RSA-KEY.pub
+
+yum install open-vm-tools

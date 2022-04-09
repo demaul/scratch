@@ -1,0 +1,19 @@
+admin
+
+Manage > Initiator Groups
+New Initiator Group
+Name: TestMail
+Add Initiator: (cat /etc/iscsi/initiatorname.iscsi)
+
+Manage > Volumes
+New Volume
+Name: TestMail
+Performance Policy: Default
+Limit To Initiator Group: TestMail
+Check 'Allow Multiple Access'
+
+Next
+Enter Size
+Next
+None Protection
+Finish

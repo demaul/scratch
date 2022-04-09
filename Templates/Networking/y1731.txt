@@ -1,0 +1,18 @@
+ip sla 1666
+ ethernet y1731 delay DMM domain SP-ISP evc CLIENT-ID-evc1 mpid 5666 cos 7 source mpid 1666
+  max-delay 20
+  frame interval 100
+  clock sync
+ owner CLIENT-ID-evc1
+  aggregate interval 420
+  distribution delay-variation two-way 5 10,100,1000,1000000,-1
+ip sla schedule 1666 life forever start-time after 00:02:00
+ip sla 2666
+ ethernet y1731 delay DMM domain SP-ISP evc CLIENT-ID-evc2 mpid 6666 cos 7 source mpid 2666
+  max-delay 20
+  frame interval 100
+  clock sync
+ owner CLIENT-ID-evc2
+  aggregate interval 420
+  distribution delay-variation two-way 5 10,100,1000,1000000,-1
+ip sla schedule 2666 life forever start-time after 00:02:00

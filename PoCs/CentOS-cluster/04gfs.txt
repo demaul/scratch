@@ -1,0 +1,57 @@
+http://pbraun.nethence.com/unix/filesystems/gfs2.html
+
+
+#man mkfs.gfs2
+Note. use lock_dlm protocol for a shared disk storage configuration
+Note. clustername must match that in cluster.conf
+Note.  or any other name to distinguish this filesystem
+Mount it on all nodes and check,
+cd /mnt
+mkdir -p gfs
+mount.gfs2 /dev/vgcheck/lvcheck gfs
+cd gfs
+#echo ok > check
+cat check
+Note. mount.gfs2 doesn't tell if the filesystem is clean or not, hence the fsck before mounting when doing disater recovery,
+#fsck.gfs2 -y /dev/vgcheck/lvcheck
+
+yum install gfs2-utils.x86_64
+
+mkdir /mnt/mail
+mkfs.gfs2 -p lock_dlm -t TestMail-BE:LVol-Dave-01 -j 2 /dev/VG-Mail-01/LVol-Dave-01
+
+
+[root@testmail03 ~]# mkfs.gfs2 -p lock_dlm -t TestMail-BE:LVol-Dave-01 -j 2 /dev/VG-Mail-01/LVol-Dave-01
+This will destroy any data on /dev/VG-Mail-01/LVol-Dave-01.
+It appears to contain: symbolic link to `../dm-3'
+
+Are you sure you want to proceed? [y/n] y
+
+Device:                    /dev/VG-Mail-01/LVol-Dave-01
+Blocksize:                 4096
+Device Size                499.00 GB (130809856 blocks)
+Filesystem Size:           499.00 GB (130809854 blocks)
+Journals:                  2
+Resource Groups:           1996
+Locking Protocol:          "lock_dlm"
+Lock Table:                "clustername:TestMail-BE"
+UUID:                      f6356971-e1ea-ce7d-9d83-76c4ef715bfd
+
+echo "/dev/VG-Mail-01/LVol-Dave-01    /mnt/mail       gfs2    defaults        0 0" >> /etc/fstab
+
+mount -a
+
+
+Adding a journal to an existing gfs2 file system
+
+Journals can be added 'on-the-fly' for gfs2 filesystems. just use 'gfs2_jadd'
+
+# gfs2_jadd -j 1 /dev/VG-Mail-01/LVol-Dave-01
+Filesystem:            /data
+Old Journals           1
+New Journals           2
+
+
+
+
+

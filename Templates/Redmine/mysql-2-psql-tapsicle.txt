@@ -1,0 +1,29 @@
+
+
+#tapsicle is possibly the latest evolution of the now abandoned project taps
+#taps is a ruby tool that you use to migrate from one type of DB to another
+
+#undocumented dependencies
+yum install sqlite-devel
+gem install sqlite3
+
+gem install tapsicle
+
+#fix a potential incompatibility
+su postgres
+psql
+ALTER DATABASE redmine SET bytea_output TO 'escape';
+\q
+exit
+
+#on source
+taps server mysql2://redmin:password@localhost/redmine user pass
+
+#on dest
+taps pull postgres://redmine:password@localhost/redmine http://user:pass@localhost:5000
+
+
+
+http://badrit.com/blog/2011/1/19/postgresql-9-bytea-type-problems#.WMjpPzvyu70
+
+https://blog.ragnarson.com/2013/10/24/easy-database-migration-using-taps.html
